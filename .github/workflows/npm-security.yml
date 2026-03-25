@@ -1,0 +1,38 @@
+# Call from other workflows:
+#jobs:
+#  call-security:
+#    uses: vestfoldfylke/shared/.github/workflows/npm-security.yml@main
+#    with:
+#      audit_severity: "high" # required to be set. Can be one of (null, info, low, moderate, high, critical, none)
+#      node_version: 22 # this one is optional and defaults to 22 if not set
+#
+
+name: NPM security checks
+on:
+  workflow_call:
+    inputs:
+      audit_severity:
+        required: true
+        type: string
+      node_version:
+        required: false
+        type: number
+        default: 22
+        
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Install dependencies (while ignoring scripts)
+        run: npm ci --ignore-scripts
+      
+      - name: Run npm audit with severity ${{ inputs.audit_severity }}
+        run: npm audit --omit=dev --audit-level=${{ inputs.audit_severity }}
