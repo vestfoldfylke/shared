@@ -1,4 +1,7 @@
 # Call from other workflows:
+#
+# All npm installations are run with --ignore-scripts, if you know that something is safe, and need it to run, set up a script in package.json called "safe-post-install", and run what you need.
+#
 #jobs:
 #  deploy-az-app-service-node:
 #    uses: vestfoldfylke/shared/.github/workflows/deploy-az-app-service-node.yml@main
@@ -56,6 +59,7 @@ jobs:
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
           npm ci --ignore-scripts
+          npm run safe-post-install --if-present
           npm run build --if-present
           npm run test --if-present
           popd
@@ -65,6 +69,7 @@ jobs:
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
           npm ci --omit=dev --ignore-scripts
+          npm run safe-post-install --if-present
           popd
 
       - name: "Run Azure Functions Action"
