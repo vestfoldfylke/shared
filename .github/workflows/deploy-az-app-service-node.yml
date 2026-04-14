@@ -1,7 +1,7 @@
 # Call from other workflows:
 #jobs:
-#  deploy-azf-node:
-#    uses: vestfoldfylke/shared/.github/workflows/deploy-azf-node.yml@main
+#  deploy-az-app-service-node:
+#    uses: vestfoldfylke/shared/.github/workflows/deploy-az-app-service-node.yml@main
 #    with:
 #      azure_appname: "app-resource-name" # required
 #      azure_functionapp_package_path: "." # required
