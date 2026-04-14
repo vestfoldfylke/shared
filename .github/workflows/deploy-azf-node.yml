@@ -1,0 +1,77 @@
+# Call from other workflows:
+#jobs:
+#  deploy-azf-node:
+#    uses: vestfoldfylke/shared/.github/workflows/deploy-azf-node.yml@main
+#    with:
+#      azure_appname: "app-resource-name" # required
+#      azure_functionapp_package_path: "." # required
+#      azure_publishprofile: "*******" # required
+#      node_version: 22 # this one is optional and defaults to 22 if not set
+#      audit_severity: "high" # this one is optional and defaults to "high" if not set. Can be one of (null, info, low, moderate, high, critical, none)
+#
+
+name: Deploy azure function (Nodejs)
+on:
+  workflow_call:
+    inputs:
+      azure_appname:
+        required: true
+        type: string
+      azure_functionapp_package_path:
+        required: true
+        type: string
+      node_version:
+        required: false
+        type: number
+        default: 22
+      audit_severity:
+        required: false
+        type: string
+        default: "high"
+    secrets:
+      azure_publishprofile:
+        required: true
+        
+jobs:
+  call-security:
+    uses: vestfoldfylke/shared/.github/workflows/npm-security.yml@main
+    with:
+      audit_severity: ${{ inputs.audit_severity }}
+      node_version: ${{ inputs.node_version }}
+
+  build-and-deploy:
+    needs: call-security
+    runs-on: self-hosted
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v6
+
+      - name: Setup Node ${{ inputs.node_version }} Environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: "Resolve Project Dependencies Using Npm, Build and Test"
+        shell: bash
+        run: |
+          pushd './${{ inputs.azure_functionapp_package_path }}'
+          npm ci --ignore-scripts
+          npm run build --if-present
+          npm run test --if-present
+          popd
+      
+      - name: "Resolve Production Project Dependencies Using Npm"
+        shell: bash
+        run: |
+          pushd './${{ inputs.azure_functionapp_package_path }}'
+          npm ci --omit=dev --ignore-scripts
+          popd
+
+      - name: "Run Azure Functions Action"
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ inputs.azure_appname }}
+          slot-name: 'Production'
+          package: ${{ inputs.azure_functionapp_package_path }}
+          publish-profile: ${{ secrets.azure_publishprofile }}
