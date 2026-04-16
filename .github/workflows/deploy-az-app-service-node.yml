@@ -8,9 +8,10 @@
 #    with:
 #      azure_appname: "app-resource-name" # required
 #      azure_functionapp_package_path: "." # required
-#      azure_publishprofile: "*******" # required
 #      node_version: 22 # this one is optional and defaults to 22 if not set
 #      audit_severity: "high" # this one is optional and defaults to "high" if not set. Can be one of (null, info, low, moderate, high, critical, none)
+#    secrets:
+#      azure_publishprofile: "*******" # required
 #
 
 name: Deploy azure function (Nodejs)
