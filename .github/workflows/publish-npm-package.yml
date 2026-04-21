@@ -22,10 +22,6 @@ on:
         required: false
         type: string
         default: "high"
-
-permissions:
-  id-token: write  # Required for OIDC (trusted publisher setup)
-  contents: read
         
 jobs:
   call-security:
@@ -37,6 +33,11 @@ jobs:
   build-and-deploy:
     needs: call-security
     runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write  # Required for OIDC (trusted publisher setup)
+      contents: read
+
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@v6
