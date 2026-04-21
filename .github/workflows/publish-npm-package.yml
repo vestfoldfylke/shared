@@ -5,6 +5,9 @@
 # jobs:
 #  publish-npm-package:
 #    uses: vestfoldfylke/shared/.github/workflows/publish-npm-package.yml@main
+#    permissions:
+#      id-token: write  # Required for OIDC (trusted publisher setup)
+#      contents: read
 #    with:
 #      node_version: 24 # this one is optional and defaults to 24 if not set
 #      audit_severity: "high" # this one is optional and defaults to "high" if not set. Can be one of (null, info, low, moderate, high, critical, none)
@@ -33,10 +36,6 @@ jobs:
   build-and-deploy:
     needs: call-security
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write  # Required for OIDC (trusted publisher setup)
-      contents: read
 
     steps:
       - name: "Checkout GitHub Action"
