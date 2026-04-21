@@ -1,39 +1,31 @@
+# Requires setup of trusted publisher before deploying. Read more: https://docs.npmjs.com/trusted-publishers and https://docs.npmjs.com/trusted-publishers
 # All npm installations are run with --ignore-scripts, if you know that something is safe, and need it to run, set up a script in package.json called "safe-post-install", and run what you need.
 #
 # Call from other workflows:
 # jobs:
-#  deploy-az-app-service-node:
-#    uses: vestfoldfylke/shared/.github/workflows/deploy-az-app-service-node.yml@main
+#  publish-npm-package:
+#    uses: vestfoldfylke/shared/.github/workflows/publish-npm-package.yml@main
 #    with:
-#      azure_appname: "app-resource-name" # required
-#      azure_functionapp_package_path: "." # required
-#      node_version: 22 # this one is optional and defaults to 22 if not set
+#      node_version: 24 # this one is optional and defaults to 24 if not set
 #      audit_severity: "high" # this one is optional and defaults to "high" if not set. Can be one of (null, info, low, moderate, high, critical, none)
-#    secrets:
-#      azure_publishprofile: "*******" # required
 #
 
-name: Deploy azure function (Nodejs)
+name: Publish NPM Package (Trusted publisher)
 on:
   workflow_call:
     inputs:
-      azure_appname:
-        required: true
-        type: string
-      azure_functionapp_package_path:
-        required: true
-        type: string
       node_version:
         required: false
         type: number
-        default: 22
+        default: 24
       audit_severity:
         required: false
         type: string
         default: "high"
-    secrets:
-      azure_publishprofile:
-        required: true
+
+permissions:
+  id-token: write  # Required for OIDC (trusted publisher setup)
+  contents: read
         
 jobs:
   call-security:
@@ -44,7 +36,7 @@ jobs:
 
   build-and-deploy:
     needs: call-security
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@v6
@@ -53,30 +45,19 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ inputs.node_version }}
+          registry-url: 'https://registry.npmjs.org'
+      
+      # Ensure npm 11.5.1 or later is installed
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: "Resolve Project Dependencies Using Npm, Build and Test"
         shell: bash
         run: |
-          pushd './${{ inputs.azure_functionapp_package_path }}'
           npm ci --ignore-scripts
           npm run safe-post-install --if-present
           npm run build --if-present
           npm run test --if-present
-          popd
-      
-      - name: "Resolve Production Project Dependencies Using Npm"
-        shell: bash
-        run: |
-          pushd './${{ inputs.azure_functionapp_package_path }}'
-          npm ci --omit=dev --ignore-scripts
-          npm run safe-post-install --if-present
-          popd
 
-      - name: "Run Azure Functions Action"
-        uses: Azure/functions-action@v1
-        id: fa
-        with:
-          app-name: ${{ inputs.azure_appname }}
-          slot-name: 'Production'
-          package: ${{ inputs.azure_functionapp_package_path }}
-          publish-profile: ${{ secrets.azure_publishprofile }}
+      - name: "Publish to NPM"
+        run: npm publish
