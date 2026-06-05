@@ -3,7 +3,7 @@
 #  call-security:
 #    uses: vestfoldfylke/shared/.github/workflows/npm-security.yml@main
 #    with:
-#      audit_severity: "moderate" # this one is optional and defaults to "moderate" if not set. Can be one of (null, info, low, moderate, high, critical, none)
+#      audit_severity: "moderate" # required to be set. Can be one of (null, info, low, moderate, high, critical, none)
 #      node_version: 22 # this one is optional and defaults to 22 if not set
 #
 
@@ -12,9 +12,8 @@ on:
   workflow_call:
     inputs:
       audit_severity:
-        required: false
+        required: true
         type: string
-        default: "moderate"
       node_version:
         required: false
         type: number
