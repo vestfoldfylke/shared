@@ -10,7 +10,7 @@
 #      contents: read
 #    with:
 #      node_version: 24 # this one is optional and defaults to 24 if not set
-#      audit_severity: "high" # this one is optional and defaults to "high" if not set. Can be one of (null, info, low, moderate, high, critical, none)
+#      audit_severity: "moderate" # this one is optional and defaults to "moderate" if not set. Can be one of (null, info, low, moderate, high, critical, none)
 #
 
 name: Publish NPM Package (Trusted publisher)
@@ -24,7 +24,7 @@ on:
       audit_severity:
         required: false
         type: string
-        default: "high"
+        default: "moderate"
         
 jobs:
   call-security:
