@@ -1,0 +1,2 @@
+# Assigns reviewers to GitHub Actions dependency changes
+.github/workflows/   @vestfoldfylke/duster
