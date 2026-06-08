@@ -7,6 +7,7 @@
 #      azure_appname: "app-resource-name" # required
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
 #      dotnet_version: "10.0.x" # required and must follow the TargetFramework version set in the project file (*.csproj)
+#      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
 #    secrets:
 #      azure_publishprofile: "*******" # required
 #
@@ -24,12 +25,23 @@ on:
       dotnet_version:
         required: true
         type: string
+      audit_severity:
+        required: false
+        type: string
+        default: "Moderate|High|Critical"
     secrets:
       azure_publishprofile:
         required: true
 
 jobs:
+  call-security:
+    uses: vestfoldfylke/shared/.github/workflows/dotnet-security.yml@main
+    with:
+      audit_severity: ${{ inputs.audit_severity }}
+      dotnet_version: ${{ inputs.dotnet_version }}
+
   build-and-deploy:
+    needs: call-security
     runs-on: self-hosted
     steps:
       - name: "Checkout GitHub Action"
