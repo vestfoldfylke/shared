@@ -2,15 +2,15 @@
 #
 # Call from other workflows:
 # jobs:
-#  deploy-az-app-service-node:
-#    uses: vestfoldfylke/shared/.github/workflows/deploy-az-app-service-node.yml@main
-#    with:
-#      azure_appname: "app-resource-name" # required
-#      azure_functionapp_package_path: "." # required
-#      node_version: 22 # this one is optional and defaults to 22 if not set
-#      audit_severity: "moderate" # this one is optional and defaults to "moderate" if not set. Can be one of (null, info, low, moderate, high, critical, none)
-#    secrets:
-#      azure_publishprofile: "*******" # required
+#   deploy-az-app-service-node:
+#     uses: vestfoldfylke/shared/.github/workflows/deploy-az-app-service-node.yml@main
+#     with:
+#       azure_appname: "app-resource-name" # required
+#       azure_functionapp_package_path: "." # required
+#       node_version: 22 # this one is optional and defaults to 22 if not set
+#       audit_severity: "moderate" # this one is optional and defaults to "moderate" if not set. Can be one of (null, info, low, moderate, high, critical, none)
+#     secrets:
+#       azure_publishprofile: "*******" # required
 #
 
 name: Deploy azure function (Nodejs)

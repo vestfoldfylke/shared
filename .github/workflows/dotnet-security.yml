@@ -4,7 +4,7 @@
 #    uses: vestfoldfylke/shared/.github/workflows/dotnet-security.yml@main
 #    with:
 #      audit_severity: "Moderate|High|Critical" # required to be set. Can be one of (Moderate|High|Critical, High|Critical, Critical)
-#      dotnet_version: "8.x"
+#      dotnet_version: "8.0.x" # required to be set and must follow the TargetFramework version set in the project file (*.csproj)
 #
 
 name: NuGet security checks
@@ -29,22 +29,22 @@ jobs:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-      - name: Setup DotNet ${{ inputs.dotnet_version }} Environment
+      - name: Setup .NET ${{ inputs.dotnet_version }} Environment
         uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
 
-      - name: "Check for vulnerable NuGet packages"
+      - name: "Check for vulnerable NuGet package dependencies"
         shell: bash
         run: |
-          echo "🔍 Checking for vulnerable NuGet packages..."
+          echo "🔍 Checking for vulnerable NuGet package dependencies..."
           
           vulnerable=$(dotnet list package --vulnerable --include-transitive 2>&1 | grep -iE "${{ inputs.audit_severity }}")
           
           if [ -n "$vulnerable" ]; then
-            echo "❌ Vulnerable packages found:"
+            echo "❌ Vulnerable package dependencies found:"
             echo "$vulnerable"
             exit 1
           fi
           
-          echo "✅ No vulnerable packages found."
+          echo "✅ No vulnerable package dependencies found."
