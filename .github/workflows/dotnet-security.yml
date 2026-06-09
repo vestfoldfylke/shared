@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "🔍 Checking for vulnerable NuGet package dependencies..."
           
-          vulnerable=$(dotnet list package --vulnerable --include-transitive 2>&1 | grep -iE "${{ inputs.audit_severity }}")
+          vulnerable=$(dotnet list package --vulnerable --include-transitive 2>&1 | grep -iE "${{ inputs.audit_severity }}" || true) # || true is needed to prevent GitHub Actions from failing the step if grep doesn't find any matches (pipefail)
           
           if [ -n "$vulnerable" ]; then
             echo "❌ Vulnerable package dependencies found:"
