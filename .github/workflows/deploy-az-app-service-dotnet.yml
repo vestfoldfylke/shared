@@ -6,31 +6,36 @@
 #    with:
 #      azure_appname: "app-resource-name" # required
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
-#      dotnet_version: "10.0.x" # required and must follow the TargetFramework version set in the project file (*.csproj)
+#      dotnet_version: "8.0.x" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
 #    secrets:
 #      azure_publishprofile: "*******" # required
 #
 
-name: Deploy azure function (dotnet)
+name: Deploy Azure Function (dotnet)
 on:
   workflow_call:
     inputs:
       azure_appname:
+        description: 'The name of the Azure Function App to deploy to (without slot name, e.g. "my-function-app")'
         required: true
         type: string
       azure_functionapp_package_path:
+        description: 'The path to the Azure Function App project to deploy relative to the root of the repository. If multiple projects exist in the same solution, set this to the project to deploy (e.g. "src/MyFunctionApp"). Usually just "."'
         required: true
         type: string
       dotnet_version:
+        description: 'The .NET version to use (e.g. "8.0.x", "9.0.x", "10.0.x") and must follow the TargetFramework version set in the project file (*.csproj)'
         required: true
         type: string
       audit_severity:
+        description: 'Minimum severity to fail on (e.g. "Moderate|High|Critical", "High|Critical", "Critical")'
         required: false
         type: string
         default: "Moderate|High|Critical"
     secrets:
       azure_publishprofile:
+        description: 'The publish profile for the Azure Function App. Recommended: use a secret like secrets.azure_publishprofile for your publish profile'
         required: true
 
 jobs:
@@ -47,7 +52,7 @@ jobs:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-      - name: Setup DotNet ${{ inputs.dotnet_version }} Environment
+      - name: Setup .NET ${{ inputs.dotnet_version }} Environment
         uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
