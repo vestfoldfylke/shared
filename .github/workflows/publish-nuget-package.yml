@@ -2,18 +2,18 @@
 #
 # Call from other workflows:
 # jobs:
-#  publish-npm-package:
-#    uses: vestfoldfylke/shared/.github/workflows/publish-nuget-package.yml@main
-#    permissions:
-#      id-token: write  # Required for OIDC (trusted publisher setup)
-#      contents: read
-#    with:
-#      dotnet_version: "8.0.x" # this one is optional and defaults to "8.0.x" if not set. Can be any version supported by actions/setup-dotnet, e.g. "8.0.x", "9.0.x", "10.0.x"
-#      audit_severity: "Moderate|High|Critical" # this one is optional and defaults to "Moderate|High|Critical" if not set. Can be one of (Moderate|High|Critical, High|Critical, Critical)
-#      project_path: "projectDir/project.csproj" # this one is required and should be the path to the .csproj file relative to the root of the repository
-#      project_release_path: "projectDir/bin/Release" # this one is required and should be the path to the directory containing the .nupkg file(s) relative to the root of the repository
-#    secrets:
-#      NUGET_USER: "*******" # required. Recommended: use a secret like ${{ secrets.NUGET_USER }} for your nuget.org username (profile name), NOT your email address
+#   publish-nuget-package:
+#     uses: vestfoldfylke/shared/.github/workflows/publish-nuget-package.yml@main
+#     permissions:
+#       id-token: write  # Required for OIDC (trusted publisher setup)
+#       contents: read
+#     with:
+#       dotnet_version: "8.0.x" # this one is optional and defaults to "8.0.x" if not set. Can be any version supported by actions/setup-dotnet, e.g. "8.0.x", "9.0.x", "10.0.x"
+#       audit_severity: "Moderate|High|Critical" # this one is optional and defaults to "Moderate|High|Critical" if not set. Can be one of (Moderate|High|Critical, High|Critical, Critical)
+#       project_path: "projectDir/project.csproj" # this one is required and should be the path to the .csproj file relative to the root of the repository
+#       project_release_path: "projectDir/bin/Release" # this one is required and should be the path to the directory containing the .nupkg file(s) relative to the root of the repository
+#     secrets:
+#       NUGET_USER: "*******" # required. Recommended: use a secret like ${{ secrets.NUGET_USER }} for your nuget.org username (profile name), NOT your email address
 #
 
 name: Publish NuGet Package (Trusted publisher)
