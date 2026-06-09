@@ -21,7 +21,7 @@ runs:
   using: composite
   steps:
     - name: Check vulnerabilities
-      uses: vestfoldfylke/shared/.github/actions/nuget-security@690dc633a6591024a2b28d84b166151ff4c24c0d # v1.0.0
+      uses: ./.github/actions/nuget-security
       with:
         audit_severity: ${{ inputs.audit_severity }}
         dotnet_version: ${{ inputs.dotnet_version }}
