@@ -26,12 +26,12 @@ jobs:
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-      - name: Setup Node.js
+      - name: Setup Node ${{ inputs.node_version }} Environment
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ inputs.node_version }}
 
-      - name: Install dependencies (while ignoring scripts)
+      - name: Resolve All Project Dependencies Using Npm (while ignoring scripts)
         run: npm ci --ignore-scripts
       
       - name: Run npm audit with severity ${{ inputs.audit_severity }}

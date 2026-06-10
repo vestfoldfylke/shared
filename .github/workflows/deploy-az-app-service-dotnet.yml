@@ -39,17 +39,10 @@ on:
         required: true
 
 jobs:
-  call-security:
-    uses: vestfoldfylke/shared/.github/workflows/dotnet-security.yml@main
-    with:
-      audit_severity: ${{ inputs.audit_severity }}
-      dotnet_version: ${{ inputs.dotnet_version }}
-
   build-and-deploy:
-    needs: call-security
     runs-on: self-hosted
     steps:
-      - name: "Checkout GitHub Action"
+      - name: Checkout GitHub Action
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup .NET ${{ inputs.dotnet_version }} Environment
@@ -57,17 +50,36 @@ jobs:
         with:
           dotnet-version: ${{ inputs.dotnet_version }}
 
-      - name: 'Test Project'
+      - name: Restore dependencies
+        shell: bash
+        run: dotnet restore
+
+      - name: Check for vulnerable NuGet packages matching severity ${{ inputs.audit_severity }}
+        shell: bash
+        run: |
+          echo "🔍 Checking for vulnerable NuGet package dependencies..."
+
+          vulnerable=$(dotnet list package --vulnerable --include-transitive 2>&1 | grep -iE "${{ inputs.audit_severity }}" || true)
+
+          if [ -n "$vulnerable" ]; then
+            echo "❌ Vulnerable package dependencies found:"
+            echo "$vulnerable"
+            exit 1
+          fi
+
+          echo "✅ No vulnerable package dependencies found."
+
+      - name: Test Project
         run: dotnet test --configuration Release
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
+      - name: Build Project
         shell: bash
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
           dotnet build --configuration Release --output ./output
           popd
 
-      - name: 'Run Azure Functions Action'
+      - name: Run Azure Functions Action
         uses: Azure/functions-action@bc63708cc6539760eea18d8a7de4ce8ef5fdf593 # v1.5.6
         id: fa
         with:

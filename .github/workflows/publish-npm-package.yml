@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: "Checkout GitHub Action"
+      - name: Checkout GitHub Action
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup Node ${{ inputs.node_version }} Environment
@@ -48,10 +48,10 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       # Ensure npm 11.5.1 or later is installed
-      - name: Update npm
+      - name: Update npm to latest
         run: npm install -g npm@latest
 
-      - name: "Resolve Project Dependencies Using Npm, Build and Test"
+      - name: Resolve All Project Dependencies Using Npm, Build and Test
         shell: bash
         run: |
           npm ci --ignore-scripts
@@ -59,5 +59,5 @@ jobs:
           npm run build --if-present
           npm run test --if-present
 
-      - name: "Publish to NPM"
+      - name: Publish to NPM
         run: npm stage publish
