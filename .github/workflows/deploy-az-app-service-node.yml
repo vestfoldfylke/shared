@@ -46,7 +46,7 @@ jobs:
     needs: call-security
     runs-on: self-hosted
     steps:
-      - name: "Checkout GitHub Action"
+      - name: Checkout GitHub Action
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup Node ${{ inputs.node_version }} Environment
@@ -54,7 +54,7 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
 
-      - name: "Resolve Project Dependencies Using Npm, Build and Test"
+      - name: Resolve All Project Dependencies Using Npm, Build and Test
         shell: bash
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
@@ -64,7 +64,7 @@ jobs:
           npm run test --if-present
           popd
       
-      - name: "Resolve Production Project Dependencies Using Npm"
+      - name: Resolve Production Project Dependencies Using Npm
         shell: bash
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
@@ -72,7 +72,7 @@ jobs:
           npm run safe-post-install --if-present
           popd
 
-      - name: "Run Azure Functions Action"
+      - name: Run Azure Functions Action
         uses: Azure/functions-action@bc63708cc6539760eea18d8a7de4ce8ef5fdf593 # v1.5.6
         id: fa
         with:
