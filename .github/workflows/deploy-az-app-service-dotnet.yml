@@ -6,8 +6,7 @@
 #    with:
 #      azure_appname: "app-resource-name" # required
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
-#      dotnet_version: "8.0.x" # required and must follow the TargetFramework version set in the project file (*.csproj)
-#      framework_version: "net8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
+#      dotnet_version: "8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
 #    secrets:
 #      azure_publishprofile: "*******" # required
@@ -26,11 +25,7 @@ on:
         required: true
         type: string
       dotnet_version:
-        description: 'The .NET version to use (e.g. "8.0.x", "9.0.x", "10.0.x") and must follow the TargetFramework version set in the project file (*.csproj)'
-        required: true
-        type: string
-      framework_version:
-        description: 'The .NET framework version to use (e.g. "net8.0", "net9.0", "net10.0") and must follow the TargetFramework version set in the project file (*.csproj)'
+        description: 'The .NET version to use (e.g. "8.0", "9.0", "10.0") and must follow the TargetFramework version set in the project file (*.csproj)'
         required: true
         type: string
       audit_severity:
@@ -43,6 +38,10 @@ on:
         description: 'The publish profile for the Azure Function App. Recommended: use a secret like secrets.azure_publishprofile for your publish profile'
         required: true
 
+env:
+  DOTNET_VERSION: "${{ inputs.dotnet_version }}.x"
+  FRAMEWORK_VERSION: "net${{ inputs.dotnet_version }}"
+
 jobs:
   build-and-deploy:
     runs-on: self-hosted
@@ -50,10 +49,10 @@ jobs:
       - name: Checkout GitHub Action
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
-      - name: Setup .NET ${{ inputs.dotnet_version }} Environment
+      - name: Setup .NET ${{ env.DOTNET_VERSION }} Environment
         uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
         with:
-          dotnet-version: ${{ inputs.dotnet_version }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
         shell: bash
@@ -74,14 +73,14 @@ jobs:
 
           echo "✅ No vulnerable package dependencies found."
 
-      - name: Test Project with .NET ${{ inputs.framework_version }}
-        run: dotnet test --configuration Release -f ${{ inputs.framework_version }}
+      - name: Test Project with ${{ env.FRAMEWORK_VERSION }}
+        run: dotnet test --configuration Release -f ${{ env.FRAMEWORK_VERSION }}
 
-      - name: Publish Project with .NET ${{ inputs.framework_version }}
+      - name: Publish Project with ${{ env.FRAMEWORK_VERSION }}
         shell: bash
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
-          dotnet publish --configuration Release --output ./output -f ${{ inputs.framework_version }}
+          dotnet publish --configuration Release --output ./output -f ${{ env.FRAMEWORK_VERSION }}
           popd
 
       - name: Run Azure Functions Action
