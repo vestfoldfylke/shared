@@ -7,6 +7,7 @@
 #      azure_appname: "app-resource-name" # required
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
 #      dotnet_version: "8.0.x" # required and must follow the TargetFramework version set in the project file (*.csproj)
+#      framework_version: "net8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
 #    secrets:
 #      azure_publishprofile: "*******" # required
@@ -26,6 +27,10 @@ on:
         type: string
       dotnet_version:
         description: 'The .NET version to use (e.g. "8.0.x", "9.0.x", "10.0.x") and must follow the TargetFramework version set in the project file (*.csproj)'
+        required: true
+        type: string
+      framework_version:
+        description: 'The .NET framework version to use (e.g. "net8.0", "net9.0", "net10.0") and must follow the TargetFramework version set in the project file (*.csproj)'
         required: true
         type: string
       audit_severity:
@@ -69,14 +74,14 @@ jobs:
 
           echo "✅ No vulnerable package dependencies found."
 
-      - name: Test Project
-        run: dotnet test --configuration Release
+      - name: Test Project with .NET ${{ inputs.framework_version }}
+        run: dotnet test --configuration Release -f ${{ inputs.framework_version }}
 
-      - name: Build Project
+      - name: Publish Project with .NET ${{ inputs.framework_version }}
         shell: bash
         run: |
           pushd './${{ inputs.azure_functionapp_package_path }}'
-          dotnet build --configuration Release --output ./output
+          dotnet publish --configuration Release --output ./output -f ${{ inputs.framework_version }}
           popd
 
       - name: Run Azure Functions Action
