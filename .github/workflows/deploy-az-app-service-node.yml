@@ -77,6 +77,5 @@ jobs:
         id: fa
         with:
           app-name: ${{ inputs.azure_appname }}
-          slot-name: 'Production'
           package: ${{ inputs.azure_functionapp_package_path }}
           publish-profile: ${{ secrets.azure_publishprofile }}
