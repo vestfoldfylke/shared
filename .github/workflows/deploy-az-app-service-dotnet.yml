@@ -8,7 +8,7 @@
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
 #      dotnet_version: "8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
-#      needs_node: "false" # optional. Defaults to "false". Set to "true" if you need Node.js available in the build steps
+#      needs_node: false # optional. Defaults to false. Set to true if you need Node.js available in the build steps
 #      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to "true"
 #    secrets:
 #      azure_publishprofile: "*******" # required
@@ -36,10 +36,10 @@ on:
         type: string
         default: "Moderate|High|Critical"
       needs_node:
-        description: 'Pulls in actions/setup-node if set to "true"'
+        description: 'Pulls in actions/setup-node if set to true'
         required: false
-        default: "false"
-        type: string
+        default: false
+        type: boolean
       node_version:
         required: false
         type: number
@@ -66,7 +66,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node ${{ inputs.node_version }} Environment
-        if: inputs.needs_node == 'true'
+        if: inputs.needs_node == true
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ inputs.node_version }}
