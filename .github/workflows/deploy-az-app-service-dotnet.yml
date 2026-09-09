@@ -8,6 +8,8 @@
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
 #      dotnet_version: "8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
+#      needs_node: "false" # optional. Defaults to "false". Set to "true" if you need Node.js available in the build steps
+#      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to "true"
 #    secrets:
 #      azure_publishprofile: "*******" # required
 #
@@ -33,6 +35,15 @@ on:
         required: false
         type: string
         default: "Moderate|High|Critical"
+      needs_node:
+        description: 'Pulls in actions/setup-node if set to "true"'
+        required: false
+        default: "false"
+        type: string
+      node_version:
+        required: false
+        type: number
+        default: 22
     secrets:
       azure_publishprofile:
         description: 'The publish profile for the Azure Function App. Recommended: use a secret like secrets.azure_publishprofile for your publish profile'
@@ -53,6 +64,12 @@ jobs:
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node ${{ inputs.node_version }} Environment
+        if: inputs.needs_node == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ inputs.node_version }}
 
       - name: Restore dependencies
         shell: bash
