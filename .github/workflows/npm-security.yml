@@ -5,6 +5,7 @@
 #    with:
 #      audit_severity: "moderate" # required to be set. Can be one of (null, info, low, moderate, high, critical, none)
 #      node_version: 22 # this one is optional and defaults to 22 if not set
+#      package_path: "." # optional. Defaults to "." Usefull if you need to change the location of where package-lock.json resides
 #
 
 name: NPM security checks
@@ -18,11 +19,15 @@ on:
         required: false
         type: number
         default: 22
-        
+      package_path:
+        required: false
+        default: "."
+        type: string
+
 jobs:
   npm-audit:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -32,7 +37,9 @@ jobs:
           node-version: ${{ inputs.node_version }}
 
       - name: Resolve All Project Dependencies Using Npm (while ignoring scripts)
+        working-directory: ${{ inputs.package_path }}
         run: npm ci --ignore-scripts
-      
+
       - name: Run npm audit with severity ${{ inputs.audit_severity }}
+        working-directory: ${{ inputs.package_path }}
         run: npm audit --omit=dev --audit-level=${{ inputs.audit_severity }}

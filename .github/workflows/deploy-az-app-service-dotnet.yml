@@ -76,6 +76,7 @@ jobs:
     with:
       audit_severity: ${{ inputs.node_audit_severity }}
       node_version: ${{ inputs.node_version }}
+      package_path: ${{ inputs.azure_functionapp_package_path }}
 
   build-and-deploy:
     needs: call-node-security
