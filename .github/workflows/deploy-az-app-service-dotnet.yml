@@ -8,10 +8,12 @@
 #      azure_functionapp_package_path: "." # required. set to path project path. if multiple projects exists in same solution, set this to the project to deploy
 #      dotnet_version: "8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
-#      needs_node: "false" # optional. Defaults to "false". Set to "true" if you need Node.js available in the build steps
+#      needs_node: false # optional. Defaults to false. Set to true if you need Node.js available in the build steps
 #      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to "true"
+#      handle_ef_migrations: false # optional. Defaults to false. Set to true if you want EF Migrations to be performed if needed 
 #    secrets:
 #      azure_publishprofile: "*******" # required
+#      db_connection_string: "*******" # required when handle_ef_migrations is true
 #
 
 name: Deploy Azure Function (dotnet)
@@ -36,18 +38,26 @@ on:
         type: string
         default: "Moderate|High|Critical"
       needs_node:
-        description: 'Pulls in actions/setup-node if set to "true"'
+        description: 'Pulls in actions/setup-node if set to true'
         required: false
-        default: "false"
-        type: string
+        default: false
+        type: boolean
       node_version:
         required: false
         type: number
         default: 22
+      handle_ef_migrations:
+        description: 'Handles EF Migrations if set to true'
+        required: false
+        default: false
+        type: boolean
     secrets:
       azure_publishprofile:
         description: 'The publish profile for the Azure Function App. Recommended: use a secret like secrets.azure_publishprofile for your publish profile'
         required: true
+      db_connection_string:
+        description: 'The database connection string used by `dotnet ef database update`. Required when handle_ef_migrations is true.'
+        required: false
 
 env:
   DOTNET_VERSION: "${{ inputs.dotnet_version }}.x"
@@ -66,7 +76,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node ${{ inputs.node_version }} Environment
-        if: inputs.needs_node == 'true'
+        if: inputs.needs_node == true
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ inputs.node_version }}
@@ -99,6 +109,27 @@ jobs:
           pushd './${{ inputs.azure_functionapp_package_path }}'
           dotnet publish --configuration Release --output ./output -f ${{ env.FRAMEWORK_VERSION }}
           popd
+
+      - name: Install dotnet-ef tool
+        if: inputs.handle_ef_migrations == true
+        shell: bash
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Apply EF Core Migrations
+        if: inputs.handle_ef_migrations == true
+        shell: bash
+        working-directory: ${{ inputs.azure_functionapp_package_path }}
+        env:
+          DB_CONNECTION_STRING: ${{ secrets.db_connection_string }}
+        run: |
+          if [ -z "$DB_CONNECTION_STRING" ]; then
+            echo "❌ handle_ef_migrations is true but the db_connection_string secret is empty."
+            exit 1
+          fi
+
+          echo "🔧 Applying EF Core migrations..."
+          dotnet ef database update --connection "$DB_CONNECTION_STRING" --no-build --configuration Release -f ${{ env.FRAMEWORK_VERSION }}
+          echo "✅ EF Core migrations applied."
 
       - name: Run Azure Functions Action
         uses: Azure/functions-action@c5060b3b8bb1ebbcb531abd00c822ecbaa8ea656 # v1.5.7
