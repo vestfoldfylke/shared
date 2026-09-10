@@ -9,7 +9,8 @@
 #      dotnet_version: "8.0" # required and must follow the TargetFramework version set in the project file (*.csproj)
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
 #      needs_node: false # optional. Defaults to false. Set to true if you need Node.js available in the build steps
-#      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to "true"
+#      node_audit_severity: "moderate" # optional. Defaults to "moderate". Will only be used if needs_node is set to true. Can be one of (null, info, low, moderate, high, critical, none)
+#      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to true
 #      handle_ef_migrations: false # optional. Defaults to false. Set to true if you want EF Migrations to be performed if needed 
 #    secrets:
 #      azure_publishprofile: "*******" # required
@@ -42,6 +43,11 @@ on:
         required: false
         default: false
         type: boolean
+      node_audit_severity:
+        description: 'Can be one of (null, info, low, moderate, high, critical, none)'
+        required: false
+        type: string
+        default: "moderate"
       node_version:
         required: false
         type: number
@@ -64,7 +70,16 @@ env:
   FRAMEWORK_VERSION: "net${{ inputs.dotnet_version }}"
 
 jobs:
+  call-node-security:
+    if: inputs.needs_node == true
+    uses: vestfoldfylke/shared/.github/workflows/npm-security.yml@main
+    with:
+      audit_severity: ${{ inputs.node_audit_severity }}
+      node_version: ${{ inputs.node_version }}
+
   build-and-deploy:
+    needs: call-node-security
+    if: ${{ !cancelled() && !failure() }}
     runs-on: self-hosted
     steps:
       - name: Checkout GitHub Action
