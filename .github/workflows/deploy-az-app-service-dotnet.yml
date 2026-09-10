@@ -141,8 +141,8 @@ jobs:
         env:
           ConnectionStrings__MigrationConnection: ${{ secrets.db_connection_string }}
         run: |
-          if [ -z "$DB_CONNECTION_STRING" ]; then
-            echo "❌ handle_ef_migrations is true but the db_connection_string secret is empty."
+          if [ -z "$ConnectionStrings__MigrationConnection" ]; then
+            echo "❌ handle_ef_migrations is true but the ConnectionStrings__MigrationConnection secret is empty."
             exit 1
           fi
 
