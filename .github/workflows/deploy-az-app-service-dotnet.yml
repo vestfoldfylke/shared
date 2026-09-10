@@ -139,7 +139,7 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.azure_functionapp_package_path }}
         env:
-          DB_CONNECTION_STRING: ${{ secrets.db_connection_string }}
+          ConnectionStrings__MigrationConnection: ${{ secrets.db_connection_string }}
         run: |
           if [ -z "$DB_CONNECTION_STRING" ]; then
             echo "❌ handle_ef_migrations is true but the db_connection_string secret is empty."
@@ -147,7 +147,7 @@ jobs:
           fi
 
           echo "🔧 Applying EF Core migrations..."
-          dotnet ef database update --connection "$DB_CONNECTION_STRING" --no-build --configuration Release --framework ${{ env.FRAMEWORK_VERSION }}
+          dotnet ef database update --no-build --configuration Release --framework ${{ env.FRAMEWORK_VERSION }}
           echo "✅ EF Core migrations applied."
 
       - name: Run Azure Functions Action
