@@ -147,7 +147,7 @@ jobs:
           fi
 
           echo "🔧 Applying EF Core migrations..."
-          dotnet ef database update --connection "$DB_CONNECTION_STRING" --no-build --configuration Release -f ${{ env.FRAMEWORK_VERSION }}
+          dotnet ef database update --connection "$DB_CONNECTION_STRING" --no-build --configuration Release --framework ${{ env.FRAMEWORK_VERSION }}
           echo "✅ EF Core migrations applied."
 
       - name: Run Azure Functions Action
