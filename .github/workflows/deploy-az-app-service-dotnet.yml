@@ -129,7 +129,10 @@ jobs:
       - name: Install dotnet-ef tool
         if: inputs.handle_ef_migrations == true
         shell: bash
-        run: dotnet tool install --global dotnet-ef
+        run: |
+          dotnet tool update --global dotnet-ef --version "${{ inputs.dotnet_version }}.*" \
+            || dotnet tool install --global dotnet-ef --version "${{ inputs.dotnet_version }}.*"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
 
       - name: Apply EF Core Migrations
         if: inputs.handle_ef_migrations == true
