@@ -24,7 +24,7 @@ runs:
   using: composite
   steps:
     - name: Run .NET security checks
-      uses: vestfoldfylke/shared/.github/actions/dotnet-security@main
+      uses: ./.github/actions/dotnet-security
       with:
         audit_severity: ${{ inputs.audit_severity }}
         dotnet_version: ${{ inputs.dotnet_version }}
