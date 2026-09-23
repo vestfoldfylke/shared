@@ -76,7 +76,8 @@ jobs:
       audit_severity: ${{ inputs.audit_severity }}
       dotnet_version: ${{ inputs.dotnet_version }}.x
       framework_version: net${{ inputs.dotnet_version }}
-      package_path: ${{ inputs.azure_functionapp_package_path }}
+      # package_path intentionally omitted → defaults to "." (repo root) so restore/audit/test
+      # cover the whole solution (test projects, siblings), not just the deployable subproject.
 
   call-node-security:
     if: inputs.needs_node == true
