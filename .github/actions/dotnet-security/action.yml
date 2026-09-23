@@ -1,0 +1,64 @@
+name: .NET security checks
+description: Checks for vulnerable NuGet packages and runs tests
+
+inputs:
+  audit_severity:
+    description: 'Minimum severity to fail on (e.g. "Moderate|High|Critical", "High|Critical", "Critical")'
+    required: false
+    default: "Moderate|High|Critical"
+  dotnet_version:
+    description: 'The .NET version(s) to pass to setup-dotnet. Single-target: "8.0.x". Multi-target: pass a multi-line YAML block scalar so all SDKs are installed, e.g.:
+      dotnet_version: |
+        8.0.x
+        9.0.x'
+    required: true
+  framework_version:
+    description: 'Optional TargetFramework to restrict `dotnet test` to (e.g. "net8.0"). Leave empty on multi-target projects so every TFM in `<TargetFrameworks>` is tested.'
+    required: false
+    default: ""
+  package_path:
+    description: 'Working directory for restore/audit/test (e.g. "." or "./project")'
+    required: false
+    default: "."
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout GitHub Action
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+    - name: Setup .NET ${{ inputs.dotnet_version }} Environment
+      uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2 # v5.3.0
+      with:
+        dotnet-version: ${{ inputs.dotnet_version }}
+
+    - name: Restore dependencies
+      shell: bash
+      working-directory: ${{ inputs.package_path }}
+      run: dotnet restore
+
+    - name: Check for vulnerable NuGet packages matching severity ${{ inputs.audit_severity }}
+      shell: bash
+      working-directory: ${{ inputs.package_path }}
+      run: |
+        echo "🔍 Checking for vulnerable NuGet package dependencies..."
+
+        vulnerable=$(dotnet list package --vulnerable --include-transitive 2>&1 | grep -iE "${{ inputs.audit_severity }}" || true)
+
+        if [ -n "$vulnerable" ]; then
+          echo "❌ Vulnerable package dependencies found:"
+          echo "$vulnerable"
+          exit 1
+        fi
+
+        echo "✅ No vulnerable package dependencies found."
+
+    - name: Test Project
+      shell: bash
+      working-directory: ${{ inputs.package_path }}
+      run: |
+        if [ -n "${{ inputs.framework_version }}" ]; then
+          dotnet test --configuration Release -f ${{ inputs.framework_version }}
+        else
+          dotnet test --configuration Release
+        fi

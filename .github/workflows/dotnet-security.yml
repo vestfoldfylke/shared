@@ -1,0 +1,57 @@
+# Call from other workflows:
+#
+# Single-target project:
+#jobs:
+#  call-security:
+#    uses: vestfoldfylke/shared/.github/workflows/dotnet-security.yml@main
+#    with:
+#      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
+#      dotnet_version: "8.0.x" # required. setup-dotnet format
+#      framework_version: "net8.0" # optional. Pins `dotnet test` to a single TFM (recommended for single-target apps)
+#      package_path: "." # optional. Defaults to ".". Set when multiple projects exist in the same solution
+#
+# Multi-target NuGet package (all declared TFMs are restored, audited and tested):
+#jobs:
+#  call-security:
+#    uses: vestfoldfylke/shared/.github/workflows/dotnet-security.yml@main
+#    with:
+#      dotnet_version: |
+#        8.0.x
+#        9.0.x
+#      # framework_version omitted → every TFM in <TargetFrameworks> is tested
+#      package_path: "."
+#
+
+name: dotnet security checks
+on:
+  workflow_call:
+    inputs:
+      audit_severity:
+        required: false
+        type: string
+        default: "Moderate|High|Critical"
+      dotnet_version:
+        description: 'The .NET version(s) in setup-dotnet format. "8.0.x" for single-target, multi-line for multi-target (see file header).'
+        required: true
+        type: string
+      framework_version:
+        description: 'Optional TargetFramework to restrict `dotnet test` to (e.g. "net8.0"). Leave empty for multi-target projects so every TFM is tested.'
+        required: false
+        type: string
+        default: ""
+      package_path:
+        required: false
+        type: string
+        default: "."
+
+jobs:
+  dotnet-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run .NET security checks
+        uses: vestfoldfylke/shared/.github/actions/dotnet-security@main
+        with:
+          audit_severity: ${{ inputs.audit_severity }}
+          dotnet_version: ${{ inputs.dotnet_version }}
+          framework_version: ${{ inputs.framework_version }}
+          package_path: ${{ inputs.package_path }}
