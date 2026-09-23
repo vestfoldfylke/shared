@@ -70,6 +70,14 @@ env:
   FRAMEWORK_VERSION: "net${{ inputs.dotnet_version }}"
 
 jobs:
+  call-dotnet-security:
+    uses: vestfoldfylke/shared/.github/workflows/dotnet-security.yml@main
+    with:
+      audit_severity: ${{ inputs.audit_severity }}
+      dotnet_version: ${{ inputs.dotnet_version }}.x
+      framework_version: net${{ inputs.dotnet_version }}
+      package_path: ${{ inputs.azure_functionapp_package_path }}
+
   call-node-security:
     if: inputs.needs_node == true
     uses: vestfoldfylke/shared/.github/workflows/npm-security.yml@main
@@ -79,7 +87,9 @@ jobs:
       package_path: ${{ inputs.azure_functionapp_package_path }}
 
   build-and-deploy:
-    needs: call-node-security
+    needs:
+      - call-dotnet-security
+      - call-node-security
     if: ${{ !cancelled() && !failure() }}
     runs-on: self-hosted
     steps:
@@ -100,24 +110,6 @@ jobs:
       - name: Restore dependencies
         shell: bash
         run: dotnet restore
-
-      - name: Check for vulnerable NuGet packages matching severity ${{ inputs.audit_severity }}
-        shell: bash
-        run: |
-          echo "🔍 Checking for vulnerable NuGet package dependencies..."
-
-          vulnerable=$(dotnet list package --vulnerable --include-transitive 2>&1 | grep -iE "${{ inputs.audit_severity }}" || true)
-
-          if [ -n "$vulnerable" ]; then
-            echo "❌ Vulnerable package dependencies found:"
-            echo "$vulnerable"
-            exit 1
-          fi
-
-          echo "✅ No vulnerable package dependencies found."
-
-      - name: Test Project with ${{ env.FRAMEWORK_VERSION }}
-        run: dotnet test --configuration Release -f ${{ env.FRAMEWORK_VERSION }}
 
       - name: Publish Project with ${{ env.FRAMEWORK_VERSION }}
         shell: bash
