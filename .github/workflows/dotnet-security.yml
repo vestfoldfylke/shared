@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run .NET security checks
-        uses: vestfoldfylke/shared/.github/actions/dotnet-security@7dd74fa211cea03c1a9844f0550378a52dabab5a # 1.3.0
+        uses: ./.github/actions/dotnet-security
         with:
           audit_severity: ${{ inputs.audit_severity }}
           dotnet_version: ${{ inputs.dotnet_version }}
