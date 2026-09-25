@@ -47,9 +47,19 @@ on:
 jobs:
   dotnet-audit:
     runs-on: ubuntu-latest
+    permissions: 
+      contents: read
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: vestfoldfylke/shared
+          ref: main
+          path: .shared
+
       - name: Run .NET security checks
-        uses: ./.github/actions/dotnet-security
+        uses: ./.shared/.github/actions/dotnet-security
         with:
           audit_severity: ${{ inputs.audit_severity }}
           dotnet_version: ${{ inputs.dotnet_version }}
