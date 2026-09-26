@@ -19,10 +19,29 @@ inputs:
   project_release_path:
     description: 'The path to the .csproj file relative to the root of the repository'
     required: true
+  shared_ref:
+    description: 'Ref of the shared repo to get the actions from. Defaults to "main"'
+    required: false
+    default: 'main'
 
 runs:
   using: composite
   steps:
+    - name: Checkout vestfoldfylke/shared
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        repository: vestfoldfylke/shared
+        ref: ${{ inputs.shared_ref }}
+        path: .shared
+
+    - name: Run .NET security checks
+      uses: ./.shared/.github/actions/dotnet-security
+      with:
+        audit_severity: ${{ inputs.audit_severity }}
+        dotnet_version: ${{ inputs.dotnet_version }}
+        framework_version: ${{ inputs.framework_version }}
+        package_path: ${{ inputs.package_path }}
+
     - name: Run .NET security checks
       uses: ./.github/actions/dotnet-security
       with:
