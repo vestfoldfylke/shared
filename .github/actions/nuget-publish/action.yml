@@ -23,10 +23,6 @@ inputs:
   project_path:
     description: 'The path to the .csproj file relative to the root of the repository (e.g. "./project")'
     required: true
-  package_path:
-    description: 'Working directory for restore/audit/test (e.g. "." or "./project")'
-    required: false
-    default: "."
 
 runs:
   using: composite
@@ -38,12 +34,10 @@ runs:
 
     - name: Restore dependencies
       shell: bash
-      working-directory: ${{ inputs.package_path }}
       run: dotnet restore
 
     - name: Check for vulnerable NuGet packages matching severity ${{ inputs.audit_severity }} # NOTE: When updating this, also update ./.github/workflows/dotnet-security.yml
       shell: bash
-      working-directory: ${{ inputs.package_path }}
       run: |
         echo "🔍 Checking for vulnerable NuGet package dependencies..."
 
@@ -59,7 +53,6 @@ runs:
 
     - name: Test Project # NOTE: When updating this, also update ./.github/workflows/dotnet-security.yml
       shell: bash
-      working-directory: ${{ inputs.package_path }}
       run: |
         if [ -n "${{ inputs.framework_version }}" ]; then
           dotnet test --configuration Release -f ${{ inputs.framework_version }}
