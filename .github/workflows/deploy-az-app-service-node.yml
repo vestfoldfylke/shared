@@ -9,7 +9,7 @@
 #       azure_functionapp_package_path: "." # required
 #       node_version: 22 # this one is optional and defaults to 22 if not set
 #       audit_severity: "moderate" # this one is optional and defaults to "moderate" if not set. Can be one of (null, info, low, moderate, high, critical, none)
-#       log_azure_deploy_content: true # this one is optional and defaults to false if not set. Can be one of (true, false)
+#       log_azure_deploy_content: ${{ vars.LOG_AZURE_DEPLOY_CONTENT == 'true' }} # this one is optional and defaults to false if not set. Can be one of (true, false)
 #     secrets:
 #       azure_publishprofile: "*******" # required
 #
@@ -33,6 +33,7 @@ on:
         type: string
         default: "moderate"
       log_azure_deploy_content:
+        description: 'Set as true to list all files sent to Azure on deploy'
         required: false
         type: boolean
         default: false
@@ -86,7 +87,7 @@ jobs:
           publish-profile: ${{ secrets.azure_publishprofile }}
           respect-funcignore: 'true' # Since this is enabled, package MUST point to the root of the project (where the host.json file resides)
 
-      - name: List contents of './${{ inputs.azure_functionapp_package_path }}'
+      - name: List contents of Azure FunctionApp Package Path './${{ inputs.azure_functionapp_package_path }}'
         if: ${{ always() && inputs.log_azure_deploy_content }}
         shell: bash
         run: |
