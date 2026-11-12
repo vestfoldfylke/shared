@@ -12,11 +12,12 @@
 #      node_audit_severity: "moderate" # optional. Defaults to "moderate". Will only be used if needs_node is set to true. Can be one of (null, info, low, moderate, high, critical, none)
 #      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to true
 #      handle_ef_migrations: false # optional. Defaults to false. Set to true if you want EF Migrations to be performed if needed
-#      log_azure_deploy_content: ${{ vars.LOG_AZURE_DEPLOY_CONTENT == 'true' }} # this one is optional and defaults to false if not set. Can be one of (true, false)
 #    secrets:
 #      azure_publishprofile: "*******" # required
 #      db_connection_string: "*******" # required when handle_ef_migrations is true
 #
+# Directly reads the following variables from the repo it runs on
+#   - LOG_AZURE_DEPLOY_CONTENT # Used to List contents of Azure FunctionApp Package Path contents. Can be one of (true, false)
 
 name: Deploy Azure Function (dotnet)
 on:
@@ -58,11 +59,6 @@ on:
         required: false
         default: false
         type: boolean
-      log_azure_deploy_content:
-        description: 'Set as true to list all files sent to Azure on deploy'
-        required: false
-        type: boolean
-        default: false
     secrets:
       azure_publishprofile:
         description: 'The publish profile for the Azure Function App. Recommended: use a secret like secrets.azure_publishprofile for your publish profile'
@@ -158,7 +154,7 @@ jobs:
           publish-profile: ${{ secrets.azure_publishprofile }}
 
       - name: List contents of Azure FunctionApp Package Path './${{ inputs.azure_functionapp_package_path }}'
-        if: ${{ always() && inputs.log_azure_deploy_content }}
+        if: ${{ always() && vars.LOG_AZURE_DEPLOY_CONTENT == 'true' }}
         shell: bash
         run: |
           cd './${{ inputs.azure_functionapp_package_path }}'
