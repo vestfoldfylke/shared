@@ -4,7 +4,7 @@
 #    uses: vestfoldfylke/shared/.github/workflows/npm-security.yml@main
 #    with:
 #      audit_severity: "moderate" # required to be set. Can be one of (null, info, low, moderate, high, critical, none)
-#      node_version: 22 # this one is optional and defaults to 22 if not set
+#      node_version: 24 # this one is optional and defaults to 24 if not set
 #      package_path: "." # optional. Defaults to "." Usefull if you need to change the location of where package-lock.json resides
 #
 
@@ -18,7 +18,7 @@ on:
       node_version:
         required: false
         type: number
-        default: 22
+        default: 24
       package_path:
         required: false
         default: "."

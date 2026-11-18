@@ -10,7 +10,7 @@
 #      audit_severity: "Moderate|High|Critical" # optional. Defaults to "Moderate|High|Critical". Can be one of (Moderate|High|Critical, High|Critical, Critical)
 #      needs_node: false # optional. Defaults to false. Set to true if you need Node.js available in the build steps
 #      node_audit_severity: "moderate" # optional. Defaults to "moderate". Will only be used if needs_node is set to true. Can be one of (null, info, low, moderate, high, critical, none)
-#      node_version: 22 # optional. Defaults to 22. Will only be used if needs_node is set to true
+#      node_version: 24 # optional. Defaults to 24. Will only be used if needs_node is set to true
 #      handle_ef_migrations: false # optional. Defaults to false. Set to true if you want EF Migrations to be performed if needed
 #    secrets:
 #      azure_publishprofile: "*******" # required
@@ -53,7 +53,7 @@ on:
       node_version:
         required: false
         type: number
-        default: 22
+        default: 24
       handle_ef_migrations:
         description: 'Handles EF Migrations if set to true'
         required: false

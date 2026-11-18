@@ -7,7 +7,7 @@
 #     with:
 #       azure_appname: "app-resource-name" # required
 #       azure_functionapp_package_path: "." # required
-#       node_version: 22 # this one is optional and defaults to 22 if not set
+#       node_version: 24 # this one is optional and defaults to 24 if not set
 #       audit_severity: "moderate" # this one is optional and defaults to "moderate" if not set. Can be one of (null, info, low, moderate, high, critical, none)
 #     secrets:
 #       azure_publishprofile: "*******" # required
@@ -28,7 +28,7 @@ on:
       node_version:
         required: false
         type: number
-        default: 22
+        default: 24
       audit_severity:
         required: false
         type: string
