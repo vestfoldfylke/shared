@@ -15,6 +15,7 @@
 #    secrets:
 #      azure_publishprofile: "*******" # required
 #      db_connection_string: "*******" # required when handle_ef_migrations is true
+#      db_root_certificate:  "*******" # optionally provide a certificate to use when connecting to the database
 #
 # Directly reads the following variables from the repo it runs on
 #   - LOG_AZURE_DEPLOY_CONTENT # Used to List contents of Azure FunctionApp Package Path contents. Can be one of (true, false)
@@ -65,6 +66,9 @@ on:
         required: true
       db_connection_string:
         description: 'The database connection string used by `dotnet ef database update`. Required when handle_ef_migrations is true.'
+        required: false
+      db_root_certificate:
+        description: 'The certificate used by `dotnet ef database update`. Required if certificate should be used'
         required: false
 
 env:
@@ -135,10 +139,18 @@ jobs:
         working-directory: ${{ inputs.azure_functionapp_package_path }}
         env:
           ConnectionStrings__MigrationConnection: ${{ secrets.db_connection_string }}
+          Database__RootCertificatePem: ${{ secrets.db_root_certificate }}
         run: |
           if [ -z "$ConnectionStrings__MigrationConnection" ]; then
             echo "❌ handle_ef_migrations is true but the ConnectionStrings__MigrationConnection secret is empty."
             exit 1
+          fi
+
+          if [ -z "$Database__RootCertificatePem" ]; then
+            unset Database__RootCertificatePem
+            echo "ℹ️ No root certificate provided, connecting without a custom root certificate."
+          else
+            echo "🔐 Root certificate provided, using Database__RootCertificatePem."
           fi
 
           echo "🔧 Applying EF Core migrations..."
