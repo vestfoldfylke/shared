@@ -13,8 +13,9 @@ on:
   workflow_call:
     inputs:
       audit_severity:
-        required: true
+        required: false
         type: string
+        default: "moderate"
       node_version:
         required: false
         type: number
